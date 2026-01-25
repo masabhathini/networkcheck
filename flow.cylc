@@ -1,0 +1,37 @@
+#!jinja2
+{% from 'site.cylc' import USER_EMAILS, ADMIN_EMAILS %}
+
+[scheduler]
+    allow implicit tasks = True
+    cycle point format = CCYYMMDDThhZ
+
+[scheduling]
+    initial cycle point = previous(T-00)
+    runahead limit = P2
+    [[xtriggers]]
+        clock_check = wall_clock(offset=PT0H01M)
+
+    [[graph]]
+        PT1H = """
+            @clock_check => checknotifyemail
+            """
+
+
+[runtime]
+    [[root]]
+        submission retry delays = 2*PT2M
+        [[[meta]]]
+            description = " Check and Notify about Shaheen network connection. "
+            owner = "sateesh.masabathini@kaust.edu.sa"
+            team = "Data Production team."
+        [[[mail]]]
+            to = {{ ADMIN_EMAILS }}
+        [[[events]]]
+            mail events = submission failed, submission timeout, failed
+        [[[environment]]]
+    [[checknotifyemail]]
+        script = """
+            set -uex
+            whoami
+            """
+        platform = shaheennew_login

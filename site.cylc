@@ -1,0 +1,3 @@
+{% set EMAIL = "sateesh.masabathini@kaust.edu.sa" %}
+{% set ADMIN_EMAILS = "sateesh.masabathini@kaust.edu.sa" %}
+{% set USER_EMAILS = "sateesh.masabathini@kaust.edu.sa" %}
