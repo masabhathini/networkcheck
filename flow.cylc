@@ -10,15 +10,22 @@
     runahead limit = P2
     [[xtriggers]]
         clock_check = wall_clock(offset=PT0H01M)
+        clock_clean = wall_clock(offset=PT2H01M)
 
     [[graph]]
         PT1H = """
-            @clock_check => checknotifyemail
+            @clock_check => checknotifyemail 
+            @clock_clean & checknotifyemail => cleanup
             """
 
 
 [runtime]
     [[root]]
+        exit-script = """
+            rm -fv ${CYLC_TASK_LOG_DIR}/job.out
+            rm -fv ${CYLC_TASK_LOG_DIR}/job.err
+            rm -fv ${CYLC_TASK_LOG_DIR}/job
+            """
         submission retry delays = 2*PT2M
         [[[meta]]]
             description = " Check and Notify about Shaheen network connection. "
@@ -33,5 +40,12 @@
         script = """
             set -uex
             whoami
+            """
+        platform = shaheennew_login
+    [[cleanup]]
+        script = """
+            set -uex
+            rm -rfv ${CYLC_WORKFLOW_WORK_DIR}/${CYLC_TASK_CYCLE_POINT}
+            rm -rfv ${CYLC_WORKFLOW_SHARE_DIR}/cycle/${CYLC_TASK_CYCLE_POINT}
             """
         platform = shaheennew_login
